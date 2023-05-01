@@ -11,6 +11,7 @@ from scapy.all import *
 import datetime
 import argparse
 import random
+import sys
 
 # Normal TCP Scanning 
 def norm_scan(target_IP, port):
