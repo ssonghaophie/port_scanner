@@ -84,7 +84,8 @@ if order == "random":
 start_time= datetime.datetime.now()
 open_port_list=[]
 
-# scan each port in the list
+port_range=range(100)
+num_open=0
 num_close=0
 for port in port_range:
     if mode=="normal":
