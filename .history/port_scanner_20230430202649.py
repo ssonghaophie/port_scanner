@@ -6,8 +6,6 @@ Qs:
 1. Runtime too long, is that okay? Yes, and set timeout every 2 sec for each port
 2. How to check if Host is alive? Is that different from Port up running? Send ICMP ping
 3. For FIN Scanning, is it only open when the response is NONE? Do we have to care about firewalls or other possible unexpected responses? Don't care about it!
-
-4. Does the output have to look the same with the example? Can we have different orders (Not shown ports)?
 '''
 
 import socket
@@ -103,7 +101,7 @@ def syn_scan(target_IP, port):
     # Print message if there was a response received
     if response:
         if response.haslayer(TCP) and response.getlayer(TCP).flags == 0x12:
-            print(f"{port}/tcp    open  {getservbyport(port)}")
+            print(f"{port}/tcp    open")
         # Close the connection by RST packet
         send(IP(dst=target_IP)/TCP(dport=response.sport,flags="R"))
 
