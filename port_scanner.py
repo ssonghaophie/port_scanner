@@ -1,97 +1,28 @@
 '''sources:
 https://docs.python.org/3/library/argparse.html
-https://thepacketgeek.com/scapy/building-network-tools/part-06/
 
 Qs:
-1. Runtime too long, is that okay? Yes, and set timeout every 2 sec for each port
-2. How to check if Host is alive? Is that different from Port up running? Send ICMP ping
-3. For FIN Scanning, is it only open when the response is NONE? Do we have to care about firewalls or other possible unexpected responses? Don't care about it!
-
-4. Does the output have to look the same with the example? Can we have different orders (Not shown ports)?
+1. Why the banner grabbing now doesn't work?There's now Raw in Http response somehow
+2. The TCP Fin has different result with others
 '''
 
 import socket
 from scapy.all import *
+import datetime
 import argparse
-from datetime import datetime
+import random
 
-# specify the target IP address
-target_IP = "131.229.72.13"
-
-# Create an argument parser for port scanning modes
-mode_parser = argparse.ArgumentParser(description="Different modes of port scanning: Normal Port Scanning, TCP SYN Scanning, TCP FIN Scanning")
-mode_parser.add_argument('-mode', type=str, help="[normal/syn/fin]")
-# Parse the arguments from the command line
-mode = mode_parser.parse_args()
-
-# Create an argument parser for port scanning order
-order_parser = argparse.ArgumentParser(description="Different order of port scanning: In Order, Random Order")
-order_parser.add_argument('-order', type=str, help="[order/random]")
-# Parse the arguments from the command line
-order = order_parser.parse_args()
-
-# Create an argument parser for port scanning amount
-ports_parser = argparse.ArgumentParser(description="Different number of ports for port scanning: All Ports, Well-known TCP Ports Only")
-ports_parser.add_argument('-ports', type=str, help="[all/known]")
-# Parse the arguments from the command line
-ports = ports_parser.parse_args()
-
-# Check if target host is alive
-# Send ICMP ping to check if target host is alive 
-ping = IP(dst=target_IP)/ICMP()
-host_response = sr1(ping, timeout=2)
-if int(host_response.getlayer(ICMP).code) == 0:
-    print("Host Alive!")
-else:
-    print("Host Not Alive. Connection Closed.")
-
-
-# record start time
-start_time=str(datetime.now())
-print("Start port scan at:" + str(datetime.now()))
-
-# create a loop to iterate through all ports
-for i in range(1023):
-    # create a socket object
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # set a timeout in case the port is not open
-    sock.settimeout(2)
-    # attempt to connect to the port
-    result = sock.connect_ex((target_IP, i))
-    # if the port is open, print a message
-    if result == 0:
-        print(f"Port {i} is open")
-    # close the socket
-    sock.close()
-
-# record end time
-end_time=str(datetime.now())
-print("scan done! in" + start_time-end_time)
-
-# TCP Full Scanning 
+# Normal TCP Scanning 
 def norm_scan(target_IP, port):
-    # Create a TCP SYN packet
-    syn_packet = IP(dst=target_IP)/TCP(dport=port,flags="S")
-    # Send the packet and wait for a response
-    response = sr1(syn_packet,timeout=2)
-    # Print message if there was a response received
-    if response:
-        # Create a TCP SYN packet
-        ack_packet = IP(dst=target_IP)/TCP(dport=port,flags="A", ack=response[TCP].seq + 1)
-        send(ack_packet)
-
-        HTTP_request = IP(dst=target_IP)/TCP(dport=port)/Raw(b"GET / HHTP/1.1\r\nHost: " + target_IP.encode() + b"\r\n\r\n")
-        HTTP_response = sr1(HTTP_request, timeout=2)
-
-        # Check if the response is an HTTP response and print the banner
-        if HTTP_response and HTTP_response.haslayer(TCP) and HTTP_response.haslayer(Raw):
-            print(f"{port}/tcp    open  {getservbyport(port)}")
-            print(f"Banner from port {port}:")
-            print(HTTP_response[Raw].load)
-            return True
-        else:
-            return False
-
+  
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(1)
+    response=s.connect_ex((target_IP, port))
+    if response==0:
+        banner = s.recv(1024) 
+        s.close()
+        return banner.decode()
+    return None
 
 
 # TCP SYN Scanning (only send the initial SYN Packet and then send RST when client responds with SYN/ACK)
@@ -99,13 +30,15 @@ def syn_scan(target_IP, port):
     # Create a TCP SYN packet
     packet = IP(dst=target_IP)/TCP(dport=port,flags="S")
     # Send the packet and wait for a response
-    response = sr1(packet,timeout=2)
+    response = sr1(packet,timeout=1,verbose=False)
     # Print message if there was a response received
     if response:
         if response.haslayer(TCP) and response.getlayer(TCP).flags == 0x12:
-            print(f"{port}/tcp    open  {getservbyport(port)}")
+            return True
         # Close the connection by RST packet
-        send(IP(dst=target_IP)/TCP(dport=response.sport,flags="R"))
+        send(IP(dst=target_IP)/TCP(dport=response.sport,flags="R"),verbose=False)
+    else:
+        return False
 
 
 # TCP Fin Scanning for a single port
@@ -114,11 +47,92 @@ def fin_scan(target_IP,port):
     src_port = random.randint(1025,65534)
     # Send Fin to a destination port
     fin_resp = sr1(
-        IP(dst=target_IP)/TCP(sport=src_port,dport=port,flags="F"),timeout=2)
+        IP(dst=target_IP)/TCP(sport=src_port,dport=port,flags="F"),timeout=2,
+        verbose=False,
+    )
     # Port is open when no response
     if (fin_resp is None):
         return True
-    # Port is closed when response has an RST flag in the TCP
-    elif fin_resp.haslayer(TCP) and fin_resp.getlayer(TCP).flags == 0x14:
-        return False
-    
+    return False
+
+# Create an argument parser for port scanning modes
+parser = argparse.ArgumentParser(description="Different modes of port scanning: Normal Port Scanning, TCP SYN Scanning, TCP FIN Scanning")
+# parser.add_argument('target', metavar='target', type=str, help='Target IP address')
+parser.add_argument('-mode', type=str, help="[normal/syn/fin]")
+parser.add_argument('-order', type=str, help="[order/random]")
+parser.add_argument('-ports', type=str, help="[all/known]")
+parser.add_argument('target_ip', type=str, help="target ip address")
+
+# Parse the arguments from the command line
+mode = parser.parse_args().mode
+ports=parser.parse_args().ports
+order=parser.parse_args().order
+target_IP =parser.parse_args().target_ip
+
+# set the port list
+port_range=[]
+if ports=="all":
+    port_range=list(range(1,65536))
+elif ports=="known":
+    port_range=list(range(1,1024))
+
+if order == "random":
+    random.shuffle(list(port_range))
+
+
+# record start time
+start_time= datetime.datetime.now()
+open_port_list=[]
+
+# scan each port in the list
+num_close=0
+for port in port_range:
+    if mode=="normal":
+        banner=norm_scan(target_IP, port)
+        if banner is not None:
+            try:
+                service = socket.getservbyport(port)
+            except:
+                service=""
+            open_port_list.append([port,service,banner])
+        else:
+            num_close+=1
+
+    if mode=="syn":
+        if syn_scan(target_IP, port):
+            try:
+                service = socket.getservbyport(port)
+            except:
+                service=""
+            open_port_list.append([port,service])
+        else: num_close+=1
+
+    if mode=="fin":
+        if fin_scan(target_IP, port):
+            try:
+                service = socket.getservbyport(port)
+            except:
+                service=""
+            open_port_list.append([port,service])
+        else: num_close+=1
+
+# record end time
+end_time= datetime.datetime.now()
+
+# print final results
+print("Start port scan at: " + str(start_time))
+print("Interesting ports on " + target_IP)
+print(f"Not shown:{num_close} closed ports")
+if mode=="normal":
+    print("PORT     STATE     SERVICE       BANNER")
+else:
+    print("PORT     STATE     SERVICE")
+
+for p in open_port_list:
+    if mode=="normal":
+        print(f"{p[0]}/tcp    open    {p[1]}      {p[2]}")
+    else:
+        print(f"{p[0]}/tcp    open    {p[1]}")
+print(f"scan done! in {target_IP} ({len(open_port_list)} host up) scanned in {end_time-start_time}secs")
+
+
