@@ -15,18 +15,18 @@
 - Type the following line to execute: <br />
     <br />
     * `Python3 port_scanner.py [-mode] MODE [-order] ORDER [-ports] PORTS target_ip` <br />
-    <br />
-    - Options for MODE:<br />
-     * `normal` (TCP Connect Scan)<br />
-     * `syn` (TCP SYN Scan)<br />
-     * `fin` (TCP FIN Scan)<br />
-    - Options for ORDER:<br />
-     * `order` (in ascending order of 0,1,2,...)<br />
-     * `random` (in random order)<br />
-    - Options for PORTS:<br />
-     * `all` (scan for all the ports, ranging from 0 to 65535)<br />
-     * `known` (scan for known ports only, ranging from 0 to 1023)<br />
-    - `target_ip`: type the IP adress of the target host for the port scan<br />
+   
+- Options for MODE:<br />
+ * `normal` (TCP Connect Scan)<br />
+ * `syn` (TCP SYN Scan)<br />
+ * `fin` (TCP FIN Scan)<br />
+- Options for ORDER:<br />
+ * `order` (in ascending order of 0,1,2,...)<br />
+ * `random` (in random order)<br />
+- Options for PORTS:<br />
+ * `all` (scan for all the ports, ranging from 0 to 65535)<br />
+ * `known` (scan for known ports only, ranging from 0 to 1023)<br />
+- `target_ip`: type the IP adress of the target host for the port scan<br />
 
 ### Reflections:
 
