@@ -4,29 +4,29 @@
 
 ### Requirements:
 
-• port_scanner.py file is required <br />
-• logging, socket, scapy, datetime, argparse, random modules are required
+- `port_scanner.py` file is required <br />
+- `logging`, `socket`, `scapy`, `datetime`, `argparse`, `random` modules are required
 
 ### To run the project:
 
-• Download the port_scanner folder <br />
-• Open a terminal / command line <br />
-• Go to the directory of the folder by typing cd port_scanner <br />
-• Type the following line to execute: <br />
+- Download the port_scanner folder <br />
+- Open a terminal / command line <br />
+- Go to the directory of the folder by typing `cd port_scanner` <br />
+- Type the following line to execute: <br />
     <br />
-    * Python3 port_scanner.py [-mode] MODE [-order] ORDER [-ports] PORTS target_ip <br />
+    * `Python3 port_scanner.py [-mode] MODE [-order] ORDER [-ports] PORTS target_ip` <br />
     <br />
     * Options for MODE:<br />
-        • normal (TCP Connect Scan)<br />
-        • syn (TCP SYN Scan)<br />
-        • fin (TCP FIN Scan)<br />
+        - `normal` (TCP Connect Scan)<br />
+        - syn` (TCP SYN Scan)<br />
+        - `fin` (TCP FIN Scan)<br />
     * Options for ORDER:<br />
-        • order (in ascending order of 0,1,2,...)<br />
-        • random (in random order)<br />
+        • `order` (in ascending order of 0,1,2,...)<br />
+        • `random` (in random order)<br />
     * Options for PORTS:<br />
-        • all (scan for all the ports, ranging from 0 to 65535)<br />
-        • known (scan for known ports only, ranging from 0 to 1023)<br />
-    * target_ip: type the IP adress of the target host for the port scan<br />
+        • `all` (scan for all the ports, ranging from 0 to 65535)<br />
+        • `known` (scan for known ports only, ranging from 0 to 1023)<br />
+    * `target_ip`: type the IP adress of the target host for the port scan<br />
 
 ### Reflections:
 
