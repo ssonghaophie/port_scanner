@@ -4,7 +4,7 @@
 
 ### Requirements:
 
-• port_scanner.py file is required__
+• port_scanner.py file is required <br />
 • logging, socket, scapy, datetime, argparse, random modules are required
 
 ### To run the project:
