@@ -1,9 +1,9 @@
 '''sources:
 https://docs.python.org/3/library/argparse.html
+https://scapy.readthedocs.io/en/latest/extending.html
+https://scapy.readthedocs.io/en/latest/layers/tcp.html
+https://docs.python.org/3/library/socket.html
 
-Qs:
-1. Why the banner grabbing now doesn't work?There's now Raw in Http response somehow
-2. The TCP Fin has different result with others
 '''
 
 # IP = 131.229.72.13
@@ -29,7 +29,7 @@ def norm_scan(target_IP, port):
     # If port is open
     if response==0:
         # Grab banner
-        TCP_socket.send(b"GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
+        TCP_socket.send(b"GET / HTTP/1.1\r\nHost: "+ bytes(target_IP, 'utf-8')+ b"\r\n\r\n")
         banner = TCP_socket.recv(1024) 
         # Close socket
         TCP_socket.close()
@@ -149,7 +149,7 @@ port_range=[]
 if ports=="all":
     port_range=list(range(0,65536))
 elif ports=="known":
-    port_range=list(range(0,500))
+    port_range=list(range(0,1024))
 
 # Order
 if order == "random":
@@ -178,7 +178,7 @@ if is_alive:
     # Print final results
     print("Start port scan at: " + str(start_time))
     print("Interesting ports on " + target_IP)
-    print(f"Not shown:{num_close} closed ports")
+    print(f"Not shown: {num_close} closed ports")
     if mode=="normal":
         print("%-10s %-10s %-10s %-10s" % ("PORT", "STATE", "SERVICE", "BANNER"))
     else:
@@ -189,7 +189,7 @@ if is_alive:
             print("%-10s %-10s %-10s %-100s" % (str(p[0])+"/tcp","open",p[1],p[2]))
         else:
             print("%-10s %-10s %-10s" % (str(p[0])+"/tcp","open",p[1]))
-    print(f"scan done! in {target_IP} ({len(open_port_list)} host up) scanned in {end_time-start_time}secs")
+    print(f"scan done! 1 IP adress: {target_IP} (1 host up) scanned in {end_time-start_time} seconds")
 else:
     print("Target IP is not alive")
 
