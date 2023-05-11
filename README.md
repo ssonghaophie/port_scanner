@@ -13,13 +13,12 @@
 - Open a terminal / command line <br />
 - Go to the directory of the folder by typing `cd port_scanner` <br />
 - Type the following line to execute: <br />
-    <br />
     * `Python3 port_scanner.py [-mode] MODE [-order] ORDER [-ports] PORTS target_ip` <br />
    
-- Options for MODE:<br />
- * `normal` (TCP Connect Scan)<br />
- * `syn` (TCP SYN Scan)<br />
- * `fin` (TCP FIN Scan)<br />
+- Options for MODE:
+ * `normal` (TCP Connect Scan)
+ * `syn` (TCP SYN Scan)
+ * `fin` (TCP FIN Scan)
 - Options for ORDER:<br />
  * `order` (in ascending order of 0,1,2,...)<br />
  * `random` (in random order)<br />
