@@ -9,11 +9,11 @@
 
 ### To run the project:
 
-• Download the port_scanner folder
-• Open a terminal / command line
-• Go to the directory of the folder by typing cd port_scanner
-• Type the following line to execute:
-    • Python3 port_scanner.py [-mode] MODE [-order] ORDER [-ports] PORTS target_ip
+• Download the port_scanner folder <br />
+• Open a terminal / command line <br />
+• Go to the directory of the folder by typing cd port_scanner <br />
+• Type the following line to execute: <br />
+    • Python3 port_scanner.py [-mode] MODE [-order] ORDER [-ports] PORTS target_ip <br />
     * Options for MODE:
         • normal (TCP Connect Scan)
         • syn (TCP SYN Scan)
